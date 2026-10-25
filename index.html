@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0e18">
+<title>داشبورد یادگیری بازار | Paper Trading</title>
+<style>
+:root{--bg:#0b0e18;--sf:#131825;--sf2:#1a2235;--bd:rgba(80,110,160,.15);--tx:#d1d8e6;--mt:#6b7d9a;--gn:#00c087;--rd:#f6465d;--bl:#4e8cff;--or:#f0b90b;--pr:#a78bfa}
+*{box-sizing:border-box;margin:0}body{background:radial-gradient(ellipse at 80% 0%,#141e35 0,transparent 40%),var(--bg);color:var(--tx);font-family:Tahoma,'Segoe UI',Arial,sans-serif;line-height:1.7;min-height:100vh}
+a{color:var(--bl);text-decoration:none}a:hover{text-decoration:underline}
+main{max-width:1280px;margin:auto;padding:20px}
+.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.header h1{font-size:clamp(20px,3vw,28px)}
+.header .sub{color:var(--mt);font-size:13px}
+.status{display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--mt)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--mt)}
+.badge.ok .dot{background:var(--gn)}
+button,select{font:inherit;color:var(--tx);background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 14px;cursor:pointer;transition:background .2s}
+button:hover,select:hover{background:rgba(30,40,65,.9)}
+input{font:inherit;color:var(--tx);background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px}
+.btn-p{background:var(--bl);border-color:var(--bl);color:#fff}.btn-p:hover{background:#3d7ae6}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.mcard{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:border-color .2s}
+.mcard:hover{border-color:rgba(80,110,160,.3)}
+.mcard .lbl{font-size:12px;color:var(--mt);margin-bottom:6px}
+.mcard .prc{font-size:clamp(18px,2.5vw,26px);font-weight:700;margin-bottom:4px}
+.mcard .chg{font-size:13px}
+.chart-ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
+.chart-ctrl h2{font-size:16px;flex:1}
+.chwrap{height:420px;direction:ltr;border-radius:8px;overflow:hidden}
+.tog{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--mt);transition:all .2s}
+.tog.on{background:rgba(78,140,255,.15);border-color:var(--bl);color:var(--bl)}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.sbox{background:var(--sf2);border-radius:10px;padding:10px 12px}
+.sbox .lbl{font-size:11px;color:var(--mt);margin-bottom:3px}
+.sbox .val{font-size:16px;font-weight:700}
+.reading{margin-top:12px;padding:12px;background:var(--sf2);border-radius:10px;border-right:3px solid var(--bl)}
+.reading b{display:block;margin-bottom:4px}
+.reading .desc{font-size:13px;color:var(--mt)}
+.gauge{height:6px;border-radius:3px;background:linear-gradient(to right,var(--rd),var(--or),var(--gn));position:relative;margin-top:6px}
+.gauge .mk{position:absolute;top:-4px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--bg);transition:left .5s}
+.fgbar{height:8px;border-radius:4px;background:linear-gradient(to right,#e74c3c,#e67e22,#f1c40f,#2ecc71);position:relative;margin-top:6px}
+.fgbar .mk{position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--bg);transition:left .5s}
+.fglbl{font-size:11px;color:var(--mt);margin-top:4px}
+.bgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:16px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid label{font-size:12px;color:var(--mt);display:block;margin-bottom:4px}
+.fgrid input{width:100%}
+.tres{margin-top:12px;padding:12px;background:var(--sf2);border-radius:10px;font-size:14px}
+.nitem{padding:10px 0;border-bottom:1px solid var(--bd)}.nitem:last-child{border:0}
+.nitem .tt{font-size:14px}.nitem .dd{font-size:12px;color:var(--mt)}
+.up{color:var(--gn)}.down{color:var(--rd)}
+footer{margin-top:20px;padding-top:12px;border-top:1px solid var(--bd);font-size:12px;color:var(--mt)}
+@media(max-width:900px){.mgrid{grid-template-columns:repeat(2,1fr)}.bgrid{grid-template-columns:1fr}.srow{grid-template-columns:repeat(2,1fr)}.chwrap{height:340px}}
+@media(max-width:500px){main{padding:12px}.mgrid{grid-template-columns:1fr}.chwrap{height:280px}}
+</style></head><body><main>
+
+<header class="header"><div>
+<h1>📊 داشبورد یادگیری بازار</h1>
+<div class="sub">Paper Trading · بدون سرمایه واقعی · تحلیل تکنیکال آموزشی</div>
+</div><div class="status">
+<span class="badge" id="badge"><span class="dot"></span><span id="connTxt">آماده‌سازی…</span></span>
+<button id="refreshBtn">↻ به‌روزرسانی</button>
+</div></header>
+
+<section class="mgrid">
+<div class="mcard"><div class="lbl">₿ بیت‌کوین (BTC/USDT)</div><div class="prc" id="btcP">—</div><div class="chg" id="btcC">—</div></div>
+<div class="mcard"><div class="lbl">Ξ اتریوم (ETH/USDT)</div><div class="prc" id="ethP">—</div><div class="chg" id="ethC">—</div></div>
+<div class="mcard"><div class="lbl">🥇 طلا (PAXG ≈ XAU/USD)</div><div class="prc" id="goldP">—</div><div class="chg" id="goldC">—</div></div>
+<div class="mcard"><div class="lbl">📈 شاخص ترس و طمع</div><div class="prc" id="fgV">—</div><div class="fgbar"><div class="mk" id="fgMk" style="left:50%"></div></div><div class="fglbl" id="fgLbl">در حال دریافت…</div></div>
+</section>
+
+<section class="card" style="margin-bottom:16px">
+<div class="chart-ctrl">
+<h2>نمودار تحلیل تکنیکال</h2>
+<select id="asset"><option value="bitcoin">BTC بیت‌کوین</option><option value="ethereum">ETH اتریوم</option></select>
+<select id="tf"><option value="1h">۱ ساعته</option><option value="4h" selected>۴ ساعته</option><option value="1d">روزانه</option><option value="1w">هفتگی</option></select>
+<select id="lb"><option value="100">۱۰۰ کندل</option><option value="200" selected>۲۰۰ کندل</option><option value="500">۵۰۰ کندل</option></select>
+<button class="tog on" id="tSma">SMA 20/50</button>
+<button class="tog" id="tBb">بولینگر</button>
+</div>
+<div class="chwrap" id="chCont"></div>
+<div class="srow">
+<div class="sbox"><div class="lbl">آخرین قیمت</div><div class="val" id="sLP">—</div></div>
+<div class="sbox"><div class="lbl">تغییر آخرین کندل</div><div class="val" id="sLC">—</div></div>
+<div class="sbox"><div class="lbl">RSI (۱۴)</div><div class="val" id="sRV">—</div><div class="gauge"><div class="mk" id="rMk" style="left:50%"></div></div></div>
+<div class="sbox"><div class="lbl">حجم معامله</div><div class="val" id="sVol">—</div></div>
+</div>
+<div class="reading"><b id="rdT">خوانش بازار</b><div class="desc" id="rdD">در انتظار دریافت داده…</div></div>
+</section>
+
+<section class="bgrid">
+<article class="card">
+<h2 style="margin-bottom:12px">🧪 ماشین‌حساب معامله فرضی <span style="font-size:12px;color:var(--mt);font-weight:400">بدون سفارش واقعی</span></h2>
+<div class="fgrid">
+<div><label for="entry">قیمت ورود ($)</label><input id="entry" type="number" min="0" step="any" placeholder="مثلاً 65000"></div>
+<div><label for="exit">قیمت خروج ($)</label><input id="exit" type="number" min="0" step="any" placeholder="مثلاً 67000"></div>
+<div><label for="amt">مقدار (واحد)</label><input id="amt" type="number" min="0" step="any" value="0.01"></div>
+<div><label for="fee">کارمزد هر سمت (%)</label><input id="fee" type="number" min="0" step="any" value="0.1"></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+<select id="side"><option value="long">Long — سود از افزایش</option><option value="short">Short — سود از کاهش</option></select>
+<button class="btn-p" id="calcBtn">محاسبه سود/ضرر</button>
+</div>
+<div class="tres" id="tRes">قیمت ورود و خروج را وارد کنید.</div>
+</article>
+<article class="card">
+<h2 style="margin-bottom:12px">📰 اخبار و رویدادها</h2>
+<div class="nitem"><a class="tt" href="https://news.google.com/search?q=Bitcoin%20crypto%20market" target="_blank" rel="noopener">اخبار بیت‌کوین و رمزارزها ↗</a><div class="dd">تیترهای تازه از منابع مختلف</div></div>
+<div class="nitem"><a class="tt" href="https://news.google.com/search?q=Federal%20Reserve%20interest%20rates" target="_blank" rel="noopener">فدرال رزرو و نرخ بهره ↗</a><div class="dd">تصمیمات پولی تأثیرگذار بر بازار</div></div>
+<div class="nitem"><a class="tt" href="https://news.google.com/search?q=gold%20price%20market" target="_blank" rel="noopener">اخبار طلا و بازار جهانی ↗</a><div class="dd">قیمت طلا و فلزات گرانبها</div></div>
+<div class="nitem"><a class="tt" href="https://www.investing.com/economic-calendar/" target="_blank" rel="noopener">تقویم رویدادهای اقتصادی ↗</a><div class="dd">رویدادهای مهم اقتصادی پیش رو</div></div>
+<div class="nitem"><a class="tt" href="https://www.tradingview.com/symbols/XAUUSD/" target="_blank" rel="noopener">نمودار طلا در TradingView ↗</a><div class="dd">نمودار حرفه‌ای XAU/USD</div></div>
+</article>
+</section>
+
+<footer>
+این ابزار آموزشی است و توصیه سرمایه‌گذاری نیست. داده رمزارزها از CoinGecko؛ طلا از PAXG (تقریبی). کندل‌ها از نقاط قیمت تجمیع شده‌اند. هیچ اتصال معاملاتی یا کلید خصوصی وجود ندارد.
+<br>آخرین به‌روزرسانی: <span id="upd">—</span>
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>if(typeof LightweightCharts==='undefined')document.write('<scr'+'ipt src="lightweight-charts.js"><\/scr'+'ipt>')</script>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtK=n=>n>=1e12?'$'+fmt(n/1e12,1)+'T':n>=1e9?'$'+fmt(n/1e9,1)+'B':n>=1e6?'$'+fmt(n/1e6,1)+'M':'$'+fmt(n,0);
+
+function calcSma(v,p){return v.map((_,i)=>i<p-1?null:v.slice(i-p+1,i+1).reduce((a,b)=>a+b,0)/p)}
+function calcRsi(v,p=14){let o=Array(v.length).fill(null);for(let i=p;i<v.length;i++){let g=0,l=0;for(let j=i-p+1;j<=i;j++){let d=v[j]-v[j-1];d>0?g+=d:l-=d}let ag=g/p,al=l/p;o[i]=al===0?100:100-100/(1+ag/al)}return o}
+function calcBb(v,p=20,m=2){return v.map((_,i)=>{if(i<p-1)return null;let s=v.slice(i-p+1,i+1),avg=s.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(s.reduce((a,b)=>a+(b-avg)**2,0)/p);return{u:avg+m*std,l:avg-m*std}})}
+
+let chart,candleS,volS,sma20S,sma50S,bbUS,bbLS;
+let showSma=true,showBb=false;
+
+function initChart(){
+if(typeof LightweightCharts==='undefined'){$('chCont').innerHTML='<div style="text-align:center;padding:60px;color:var(--mt)">خطا در بارگذاری نمودار. صفحه را رفرش کنید.</div>';return}
+const c=$('chCont');
+chart=LightweightCharts.createChart(c,{width:c.clientWidth,height:c.clientHeight,
+layout:{background:{color:'transparent'},textColor:'#6b7d9a',fontFamily:'Tahoma,Arial,sans-serif'},
+grid:{vertLines:{color:'rgba(80,110,160,.06)'},horzLines:{color:'rgba(80,110,160,.06)'}},
+crosshair:{mode:0},
+rightPriceScale:{borderColor:'rgba(80,110,160,.2)'},
+timeScale:{borderColor:'rgba(80,110,160,.2)',timeVisible:true,secondsVisible:false}});
+candleS=chart.addCandlestickSeries({upColor:'#00c087',downColor:'#f6465d',borderUpColor:'#00c087',borderDownColor:'#f6465d',wickUpColor:'#00c08799',wickDownColor:'#f6465d99'});
+volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'vol'});
+chart.priceScale('vol').applyOptions({scaleMargins:{top:.85,bottom:0}});
+sma20S=chart.addLineSeries({color:'#fbbf24',lineWidth:1.5,crosshairMarkerVisible:false,visible:showSma,title:'SMA20'});
+sma50S=chart.addLineSeries({color:'#a78bfa',lineWidth:1.5,crosshairMarkerVisible:false,visible:showSma,title:'SMA50'});
+bbUS=chart.addLineSeries({color:'#4e8cff66',lineWidth:1,lineStyle:2,crosshairMarkerVisible:false,visible:showBb,title:'BB↑'});
+bbLS=chart.addLineSeries({color:'#4e8cff66',lineWidth:1,lineStyle:2,crosshairMarkerVisible:false,visible:showBb,title:'BB↓'});
+new ResizeObserver(e=>{if(e[0])chart.applyOptions({width:e[0].contentRect.width,height:e[0].contentRect.height})}).observe(c);
+}
+
+async function gj(url){let r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return r.json()}
+
+async function loadPrices(){
+const d=await gj('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pax-gold&vs_currencies=usd&include_24hr_change=true');
+[['bitcoin','btc'],['ethereum','eth'],['pax-gold','gold']].forEach(([id,pre])=>{
+if(!d[id])return;
+$(pre+'P').textContent='$'+fmt(d[id].usd);
+let c=d[id].usd_24h_change||0;
+$(pre+'C').textContent=(c>=0?'▲ +':'▼ ')+fmt(c)+'٪';
+$(pre+'C').className='chg '+(c>=0?'up':'down');
+});
+}
+
+async function loadChart(){
+if(!chart)return;
+const asset=$('asset').value,tf=$('tf').value,count=+$('lb').value;
+const days=tf==='1h'?Math.min(30,Math.ceil(count/24)):tf==='4h'?Math.min(90,Math.ceil(count/6)):tf==='1d'?Math.min(365,count):Math.min(365,Math.ceil(count*7));
+const hist=await gj('https://api.coingecko.com/api/v3/coins/'+asset+'/market_chart?vs_currency=usd&days='+days);
+if(!hist.prices||hist.prices.length<2)throw Error('داده کافی نیست');
+const raw=hist.prices,vols=hist.total_volumes||[];
+const step=tf==='1h'?3600000:tf==='4h'?14400000:tf==='1d'?86400000:604800000;
+const bk=new Map();
+raw.forEach(([t,p],i)=>{const k=Math.floor(t/step)*step;let b=bk.get(k);if(!b){b={t:k,o:p,h:p,l:p,c:p,v:0};bk.set(k,b)}b.h=Math.max(b.h,p);b.l=Math.min(b.l,p);b.c=p;if(vols[i])b.v=vols[i][1]});
+let cn=[...bk.values()].sort((a,b)=>a.t-b.t).slice(-count);
+if(cn.length<2)throw Error('کندل کافی نیست');
+
+candleS.setData(cn.map(c=>({time:c.t/1000,open:c.o,high:c.h,low:c.l,close:c.c})));
+volS.setData(cn.map(c=>({time:c.t/1000,value:c.v,color:c.c>=c.o?'#00c08725':'#f6465d25'})));
+
+const cls=cn.map(c=>c.c);
+const s20=calcSma(cls,20),s50=calcSma(cls,50);
+sma20S.setData(cn.map((c,i)=>s20[i]!=null?{time:c.t/1000,value:s20[i]}:null).filter(Boolean));
+sma50S.setData(cn.map((c,i)=>s50[i]!=null?{time:c.t/1000,value:s50[i]}:null).filter(Boolean));
+
+const bb=calcBb(cls,20,2);
+bbUS.setData(cn.map((c,i)=>bb[i]?{time:c.t/1000,value:bb[i].u}:null).filter(Boolean));
+bbLS.setData(cn.map((c,i)=>bb[i]?{time:c.t/1000,value:bb[i].l}:null).filter(Boolean));
+
+chart.timeScale().fitContent();
+
+const last=cn.at(-1),prev=cn.at(-2),chg=(last.c/prev.c-1)*100;
+const rv=calcRsi(cls),rr=rv.at(-1);
+$('sLP').textContent='$'+fmt(last.c);
+$('sLC').textContent=(chg>=0?'+':'')+fmt(chg)+'٪';
+$('sLC').className='val '+(chg>=0?'up':'down');
+$('sRV').textContent=rr!=null?fmt(rr,1):'—';
+if(rr!=null)$('rMk').style.left=rr+'%';
+$('sVol').textContent=last.v?fmtK(last.v):'—';
+
+let notes=[];
+if(s20.at(-1)!=null)notes.push(last.c>s20.at(-1)?'قیمت بالاتر از SMA20':'قیمت پایین‌تر از SMA20');
+if(s20.at(-1)!=null&&s50.at(-1)!=null)notes.push(s20.at(-1)>s50.at(-1)?'SMA20 > SMA50 (روند صعودی)':'SMA20 < SMA50 (روند نزولی)');
+if(rr!=null)notes.push(rr>=70?'RSI بالای ۷۰: احتمال اشباع خرید':rr<=30?'RSI زیر ۳۰: احتمال اشباع فروش':'RSI در محدوده عادی');
+if(bb.at(-1)){if(last.c>bb.at(-1).u)notes.push('قیمت بالای باند بولینگر');else if(last.c<bb.at(-1).l)notes.push('قیمت زیر باند بولینگر')}
+$('rdT').textContent='خوانش بازار: '+(chg>=0?'صعودی ':'نزولی ')+'('+(chg>=0?'+':'')+fmt(chg)+'٪)';
+$('rdD').textContent=notes.join(' · ')+' — کندل‌ها از داده CoinGecko تجمیع شده‌اند.';
+}
+
+async function loadFg(){try{
+const d=await gj('https://api.alternative.me/fng/?limit=1');
+if(d.data&&d.data[0]){const v=+d.data[0].value,c=d.data[0].value_classification;
+const lb={'Extreme Fear':'ترس شدید','Fear':'ترس','Neutral':'خنثی','Greed':'طمع','Extreme Greed':'طمع شدید'};
+$('fgV').textContent=v;$('fgV').className='prc '+(v>=50?'up':'down');
+$('fgMk').style.left=v+'%';$('fgLbl').textContent=lb[c]||c}
+}catch(e){$('fgLbl').textContent='دریافت نشد'}}
+
+async function loadAll(){
+$('badge').className='badge';$('connTxt').textContent='در حال دریافت…';
+try{await Promise.all([loadPrices(),loadChart(),loadFg()]);
+$('badge').className='badge ok';$('connTxt').textContent='متصل ✓'}
+catch(e){$('connTxt').textContent='خطا';$('rdD').textContent='خطا در دریافت: '+e.message+'. چند لحظه بعد تلاش کنید.'}
+$('upd').textContent=new Date().toLocaleString('fa-IR')}
+
+$('tSma').onclick=function(){showSma=!showSma;this.classList.toggle('on');sma20S.applyOptions({visible:showSma});sma50S.applyOptions({visible:showSma})};
+$('tBb').onclick=function(){showBb=!showBb;this.classList.toggle('on');bbUS.applyOptions({visible:showBb});bbLS.applyOptions({visible:showBb})};
+
+$('calcBtn').onclick=()=>{let a=+$('entry').value,b=+$('exit').value,q=+$('amt').value,f=+$('fee').value/100;
+if(!(a>0&&b>0&&q>0)){$('tRes').textContent='مقادیر باید بیشتر از صفر باشند.';return}
+let gross=(b-a)*q;if($('side').value==='short')gross=-gross;
+let net=gross-(a*q+b*q)*f,pct=net/(a*q)*100;
+$('tRes').innerHTML='<b>نتیجه: <span class="'+(net>=0?'up':'down')+'">'+(net>=0?'+':'-')+'$'+fmt(Math.abs(net))+'</span></b><div style="font-size:13px;color:var(--mt);margin-top:4px">بازده: '+(pct>=0?'+':'')+fmt(pct)+'٪ · بدون اسلیپیج</div>'};
+
+$('refreshBtn').onclick=loadAll;
+$('asset').onchange=$('tf').onchange=$('lb').onchange=()=>loadChart().catch(()=>{});
+initChart();loadAll();setInterval(loadAll,300000);
+</script></body></html>
